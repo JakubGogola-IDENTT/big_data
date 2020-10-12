@@ -3,8 +3,8 @@ import fs from 'fs';
 const whitespacesRegEx = /[\s\d]+/g;
 const charsRegEx = /[\[\]\.,:;<>()#'"-_`~$?!]/g
 
-const stopwordsFile = fs.readFileSync('./stopwords_en.txt', { encoding: 'utf-8' });
-const textFile = fs.readFileSync('./lotr_en.txt', { encoding: 'utf-8' });
+const stopwordsFile = fs.readFileSync('./stopwords_pl.txt', { encoding: 'utf-8' });
+const textFile = fs.readFileSync('./pt_pl.txt', { encoding: 'utf-8' });
 
 const stopwords = stopwordsFile
         .replace(whitespacesRegEx, ' ')
