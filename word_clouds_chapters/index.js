@@ -50,30 +50,33 @@ const filesContent = sortedChaptersWords.map(
         .reduce((acc, [word, count]) => acc.concat(`${count};${word};\n`), '')
 );
 
-filesContent.map(
-    (file, idx) => 
-        fs.writeFileSync(`./results/chapter${idx}.csv`, file)
-);
 
-const mostCommonWords = sortedChaptersWords
-    .map(chapter => chapter.slice(0, 20))
-    .map(
-        (chapter, idx) => [
-            idx,
-            chapter.reduce(
-                (acc, [word, count]) => ({ ...acc, [word]: count }),
-                {}
-            )
-        ]
+const [,, word] = process.argv;
+
+if (!word) {
+    filesContent.map(
+        (file, idx) => 
+            fs.writeFileSync(`./results/chapter${idx}.csv`, file)
     );
+} else {
+    const mostCommonWords = sortedChaptersWords
+        .map(chapter => chapter.slice(0, 20))
+        .map(
+            (chapter, idx) => [
+                idx,
+                chapter.reduce(
+                    (acc, [word, count]) => ({ ...acc, [word]: count }),
+                    {}
+                )
+            ]
+        );
 
-const selectMostMatchingChapters = word =>
-    mostCommonWords
-        .sort(([, wc1], [, wc2]) =>
-            (wc2[word] || 0)  - (wc1[word] || 0)
-        )
-        .map(([idx]) => idx)
+    const selectMostMatchingChapters = word =>
+        mostCommonWords
+            .sort(([, wc1], [, wc2]) =>
+                (wc2[word] || 0)  - (wc1[word] || 0)
+            )
+            .map(([idx]) => idx)
 
-console.log(selectMostMatchingChapters('castle'));
-
-
+        console.log(selectMostMatchingChapters(word));
+}
