@@ -58,25 +58,26 @@ if (!word) {
         (file, idx) => 
             fs.writeFileSync(`./results/chapter${idx}.csv`, file)
     );
-} else {
-    const mostCommonWords = sortedChaptersWords
-        .map(chapter => chapter.slice(0, 20))
-        .map(
-            (chapter, idx) => [
-                idx,
-                chapter.reduce(
-                    (acc, [word, count]) => ({ ...acc, [word]: count }),
-                    {}
-                )
-            ]
-        );
+    process.exit(1)
+} 
 
-    const selectMostMatchingChapters = word =>
-        mostCommonWords
-            .sort(([, wc1], [, wc2]) =>
-                (wc2[word] || 0)  - (wc1[word] || 0)
+const mostCommonWords = sortedChaptersWords
+    .map(chapter => chapter.slice(0, 20))
+    .map(
+        (chapter, idx) => [
+            idx,
+            chapter.reduce(
+                (acc, [word, count]) => ({ ...acc, [word]: count }),
+                {}
             )
-            .map(([idx]) => idx)
+        ]
+    );
 
-        console.log(selectMostMatchingChapters(word));
-}
+const selectMostMatchingChapters = word =>
+    mostCommonWords
+        .sort(([, wc1], [, wc2]) =>
+            (wc2[word] || 0)  - (wc1[word] || 0)
+        )
+        .map(([idx]) => idx)
+
+console.log(selectMostMatchingChapters(word));
