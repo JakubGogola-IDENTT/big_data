@@ -1,4 +1,4 @@
-    import fs from 'fs';
+import fs from 'fs';
 
 const whitespacesRegEx = /[\s\d]+/g;
 const charsRegEx = /[\[\]\.,:;<>()#'"-_`~$?!]/g
@@ -22,7 +22,7 @@ const chapters = text.map(
 );
 
 
-let wordsCount = chapters.map(
+let chaptersWordsCount = chapters.map(
     chapter =>
         chapter.reduce(
             (acc, word) => {
@@ -38,17 +38,42 @@ let wordsCount = chapters.map(
         )
 );
 
-const sortedWords = wordsCount.map(
+const sortedChaptersWords = chaptersWordsCount.map(
     chapter =>
         Object.entries(chapter)
             .sort(([, count1], [, count2]) => count2 - count1)
 );
 
-const filesContent = sortedWords.map(
+const filesContent = sortedChaptersWords.map(
     chapter => 
         chapter.slice(0, 200)
         .reduce((acc, [word, count]) => acc.concat(`${count};${word};\n`), '')
 );
 
-console.log(filesContent.length);
+filesContent.map(
+    (file, idx) => 
+        fs.writeFileSync(`./results/chapter${idx}.csv`, file)
+);
+
+const mostCommonWords = sortedChaptersWords
+    .map(chapter => chapter.slice(0, 20))
+    .map(
+        (chapter, idx) => [
+            idx,
+            chapter.reduce(
+                (acc, [word, count]) => ({ ...acc, [word]: count }),
+                {}
+            )
+        ]
+    );
+
+const selectMostMatchingChapters = word =>
+    mostCommonWords
+        .sort(([, wc1], [, wc2]) =>
+            (wc2[word] || 0)  - (wc1[word] || 0)
+        )
+        .map(([idx]) => idx)
+
+console.log(selectMostMatchingChapters('castle'));
+
 
