@@ -104,7 +104,11 @@ const prepareFileContent = data =>
             (acc, [word, tfidf]) => {
                 const value = parseInt(tfidf * 10000)
 
-                return acc.concat(`${value > 0 ? value : 0};${word}\n`)
+                if (!word) {
+                    return acc;
+                }
+
+                return acc.concat(`${value > 0 ? value : 1};${word}\n`)
             },
             ''
         );
