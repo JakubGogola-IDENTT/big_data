@@ -38,18 +38,79 @@ let chaptersWordsCount = chapters.map(
         )
 );
 
-const sortedChaptersWords = chaptersWordsCount.map(
+const tfidfs = chaptersWordsCount.map(
+    chapter => {
+        const wordsCount = Object.values(chapter)
+            .reduce((acc, count) => acc + count, 0);
+
+        const numberOfChapters = chapters.length;
+
+        return Object.entries(chapter)
+            .reduce(
+                (acc, [word, count]) => {
+                    const tf = count / wordsCount;
+
+                    const wordOccurences = 
+                        chaptersWordsCount.reduce(
+                            (acc, chapter) => acc + (chapter[word] || 0),
+                            0
+                        );
+
+                    const idf = Math.log(numberOfChapters / wordOccurences) / Math.log(2);
+
+                    return { ...acc, [word]: tf * idf }
+                },
+                {}
+            );
+    }
+);
+
+const sortedChapterTfidfs = tfidfs.map(
     chapter =>
         Object.entries(chapter)
-            .sort(([, count1], [, count2]) => count2 - count1)
+            .sort(([, tfidf1], [, tfidf2]) => tfidf2 - tfidf1)
 );
 
-const filesContent = sortedChaptersWords.map(
-    chapter => 
+const filesContent = sortedChapterTfidfs.map(
+    chapter =>
         chapter.slice(0, 200)
-        .reduce((acc, [word, count]) => acc.concat(`${count};${word};\n`), '')
+        .reduce(
+            (acc, [word, tfidf]) => acc.concat(`${
+                parseInt(tfidf * 10000)
+            };${word}\n`),
+            ''
+        )
 );
 
+const mergedTfidfs = 
+    tfidfs.reduce(
+        (acc, chapter) => {
+            Object.entries(chapter)
+                .forEach(([word, tfidf]) => {
+                    if (acc[word]) {
+                        acc[word] += tfidf
+                    } else {
+                        acc[word] = tfidf
+                    }
+                });
+            return acc;
+        },
+        {}
+    );
+
+const sortedMergedTfidfs = 
+    Object.entries(mergedTfidfs)
+        .sort(([, tfidf1], [, tfidf2]) => tfidf2 - tfidf1);
+
+const mergedFileContent =
+        sortedMergedTfidfs
+            .slice(0, 200)
+            .reduce(
+                (acc, [word, tfidf]) => acc.concat(`${
+                    parseInt(tfidf * 10000)
+                };${word}\n`),
+                ''
+            )
 
 const [,, word] = process.argv;
 
@@ -58,20 +119,23 @@ if (!word) {
         (file, idx) => 
             fs.writeFileSync(`./results/chapter${idx}.csv`, file)
     );
+    fs.writeFileSync('./results/merged.csv', mergedFileContent);
     process.exit(1)
-} 
+}
 
-const mostCommonWords = sortedChaptersWords
+const mostCommonWords = sortedChapterTfidfs
     .map(chapter => chapter.slice(0, 20))
     .map(
         (chapter, idx) => [
             idx,
             chapter.reduce(
-                (acc, [word, count]) => ({ ...acc, [word]: count }),
+                (acc, [word, tfidf]) => ({ ...acc, [word]: tfidf }),
                 {}
             )
         ]
     );
+
+console.log(mostCommonWords);
 
 const selectMostMatchingChapters = word =>
     mostCommonWords
