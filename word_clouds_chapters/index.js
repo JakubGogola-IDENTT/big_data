@@ -71,6 +71,33 @@ const sortedChapterTfidfs = tfidfs.map(
             .sort(([, tfidf1], [, tfidf2]) => tfidf2 - tfidf1)
 );
 
+const [,, word] = process.argv;
+
+if (word) {
+    const mostCommonWords = sortedChapterTfidfs
+        .map(chapter => chapter.slice(0, 20))
+        .map(
+            (chapter, idx) => [
+                idx,
+                chapter.reduce(
+                    (acc, [word, tfidf]) => ({ ...acc, [word]: tfidf }),
+                    {}
+                )
+            ]
+        );
+
+    const selectMostMatchingChapters = word =>
+        mostCommonWords
+            .sort(([, wc1], [, wc2]) =>
+                (wc2[word] || 0)  - (wc1[word] || 0)
+            )
+            .map(([idx]) => idx)
+
+    console.log(selectMostMatchingChapters(word));
+
+    process.exit(1);
+}
+
 const filesContent = sortedChapterTfidfs.map(
     chapter =>
         chapter.slice(0, 200)
@@ -112,36 +139,10 @@ const mergedFileContent =
                 ''
             )
 
-const [,, word] = process.argv;
 
-if (!word) {
-    filesContent.map(
-        (file, idx) => 
-            fs.writeFileSync(`./results/chapter${idx}.csv`, file)
-    );
-    fs.writeFileSync('./results/merged.csv', mergedFileContent);
-    process.exit(1)
-}
+filesContent.map(
+    (file, idx) => 
+        fs.writeFileSync(`./results/chapter${idx}.csv`, file)
+);
+fs.writeFileSync('./results/merged.csv', mergedFileContent);
 
-const mostCommonWords = sortedChapterTfidfs
-    .map(chapter => chapter.slice(0, 20))
-    .map(
-        (chapter, idx) => [
-            idx,
-            chapter.reduce(
-                (acc, [word, tfidf]) => ({ ...acc, [word]: tfidf }),
-                {}
-            )
-        ]
-    );
-
-console.log(mostCommonWords);
-
-const selectMostMatchingChapters = word =>
-    mostCommonWords
-        .sort(([, wc1], [, wc2]) =>
-            (wc2[word] || 0)  - (wc1[word] || 0)
-        )
-        .map(([idx]) => idx)
-
-console.log(selectMostMatchingChapters(word));
