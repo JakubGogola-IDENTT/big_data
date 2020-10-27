@@ -98,16 +98,18 @@ if (word) {
     process.exit(1);
 }
 
-const filesContent = sortedChapterTfidfs.map(
-    chapter =>
-        chapter.slice(0, 200)
+const prepareFileContent = data => 
+    data.slice(0, 200)
         .reduce(
-            (acc, [word, tfidf]) => acc.concat(`${
-                parseInt(tfidf * 10000)
-            };${word}\n`),
+            (acc, [word, tfidf]) => {
+                const value = parseInt(tfidf * 10000)
+
+                return acc.concat(`${value > 0 ? value : 0};${word}\n`)
+            },
             ''
-        )
-);
+        );
+
+const filesContent = sortedChapterTfidfs.map(prepareFileContent);
 
 const mergedTfidfs = 
     tfidfs.reduce(
@@ -129,15 +131,7 @@ const sortedMergedTfidfs =
     Object.entries(mergedTfidfs)
         .sort(([, tfidf1], [, tfidf2]) => tfidf2 - tfidf1);
 
-const mergedFileContent =
-        sortedMergedTfidfs
-            .slice(0, 200)
-            .reduce(
-                (acc, [word, tfidf]) => acc.concat(`${
-                    parseInt(tfidf * 10000)
-                };${word}\n`),
-                ''
-            )
+const mergedFileContent = prepareFileContent(sortedMergedTfidfs);
 
 
 filesContent.map(
