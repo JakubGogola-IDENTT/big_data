@@ -8,6 +8,7 @@ import (
 
 // MorrisCounter stores actual value of counter
 type MorrisCounter struct {
+	n     int
 	state int
 }
 
@@ -18,6 +19,8 @@ func (mc *MorrisCounter) Init() {
 
 // Inc increments counter
 func (mc *MorrisCounter) Inc() {
+	mc.n++
+
 	if rand.Float64() < math.Exp2(float64(-mc.state)) {
 		mc.state++
 	}
@@ -28,7 +31,17 @@ func (mc *MorrisCounter) Get() int {
 	return mc.state
 }
 
-// GetEx returns expected value for current counter's state
+// GetEx returns expected value for current state of counter
 func (mc *MorrisCounter) GetEx() float64 {
+	return float64(mc.n + 2)
+}
+
+// GetVar returns variance for current state of counter
+func (mc *MorrisCounter) getVar() float64 {
+	return float64(mc.n*(mc.n+1)) / 2.0
+}
+
+// GetR returns current value of random variable
+func (mc *MorrisCounter) GetR() float64 {
 	return math.Exp2(float64(mc.state)) - 2.0
 }
