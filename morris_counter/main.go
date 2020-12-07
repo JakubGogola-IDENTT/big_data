@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	anal "morris/analytics"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	a := anal.Analytics{}
+	a.Init()
+	a.Run()
 }

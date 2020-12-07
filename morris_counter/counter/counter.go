@@ -12,9 +12,9 @@ type MorrisCounter struct {
 	state int
 }
 
-// Init initializes morris counter
+// Init initializes Morris counter
 func (mc *MorrisCounter) Init() {
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 }
 
 // Inc increments counter
