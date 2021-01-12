@@ -11,7 +11,7 @@ const pairHll = hll();
 const pairRevHll = hll();
 
 data.forEach(line => {
-    const [_, src, dest] = line.split(' ');
+    const [, src, dest] = line.split(' ');
 
     if (!src || !dest) {
         return;
