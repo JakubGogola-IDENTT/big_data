@@ -10,6 +10,8 @@ const destHll = hll();
 const pairHll = hll();
 const pairRevHll = hll();
 
+const createPair = (left, right) => `${left}-${right}`
+
 data.forEach(line => {
     const [, src, dest] = line.split(' ');
 
@@ -20,8 +22,8 @@ data.forEach(line => {
     const srcValue = parseInt(src);
     const destValue = parseInt(dest);
 
-    const pair = srcValue < destValue ? `${src}_${dest}` : `${dest}_${src}`;
-    const pairRev = `${src}_${dest}`;
+    const pair = srcValue < destValue ? createPair(src, dest) : createPair(dest, src);
+    const pairRev = createPair(src, dest);
 
     srcHll.insert(src);
     destHll.insert(dest);
